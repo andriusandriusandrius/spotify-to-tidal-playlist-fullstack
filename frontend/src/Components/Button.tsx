@@ -15,11 +15,11 @@ export function Button({ type, label, variant, onClick, disabled }: ButtonProps)
         'min-w-24 rounded-md p-4 text-sm font-bold',
         variant === 'primary'
           ? disabled
-            ? 'bg-amber-200 text-white'
-            : 'bg-amber-400 text-white hover:bg-amber-300'
+            ? 'bg-slate-200 text-white'
+            : 'bg-slate-400 text-white hover:bg-slate-300'
           : disabled
-            ? 'border border-amber-200 text-gray-500'
-            : 'border border-amber-400 text-black',
+            ? 'border border-slate-200 text-gray-500'
+            : 'border border-slate-400 text-black',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
       )}
       onClick={onClick}
