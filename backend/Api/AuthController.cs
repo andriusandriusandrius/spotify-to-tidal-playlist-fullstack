@@ -35,7 +35,8 @@ namespace backend.Api {
             {
                 return BadRequest("Invalid State");
             }
-            ApiResponse<SpotifyResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code, state);
+            ApiResponse<SpotifyResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
+            Console.WriteLine(tokensResponse.Message);
             if (!tokensResponse.Success) return BadRequest(tokensResponse.Message);
             return Ok(tokensResponse);       
         }

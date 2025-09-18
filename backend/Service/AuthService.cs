@@ -12,7 +12,7 @@ namespace backend.Service
     {
         ApiResponse<string> GenerateState();
         ApiResponse<string> BuildSpotifyAuthLink(string State);
-        Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string state, string code);
+        Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string code);
     }
     public class AuthService : IAuthService
     {
@@ -62,19 +62,21 @@ namespace backend.Service
                 return new ApiResponse<string> { Success = false, Message = $"Error: {ex.Message}", Data = null };
             }
         }
-        public async Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string state, string code)
+        public async Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string code)
         {
             try
             {
                 var header = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
                 var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
                 request.Headers.Add("Authorization", $"Basic {header}");
+                Console.WriteLine(header);
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     {"code",code},
                     {"redirect_uri",_redirectUri},
                     {"grant_type","authorization_code"},
                 });
+                Console.WriteLine(request.Content.ToString());
                 var response = await _http.SendAsync(request);
                 response.EnsureSuccessStatusCode();
 
