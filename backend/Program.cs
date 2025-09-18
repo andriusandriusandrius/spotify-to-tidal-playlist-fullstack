@@ -1,9 +1,14 @@
+using backend.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 
 builder.Services.AddControllers();
+
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
