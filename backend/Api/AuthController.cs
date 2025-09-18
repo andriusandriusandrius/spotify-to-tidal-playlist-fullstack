@@ -23,8 +23,8 @@ namespace backend.Api {
 
             ApiResponse<string> authLinkResponse = _authService.BuildSpotifyAuthLink(generateStateResponse.Data);
             if (!authLinkResponse.Success) return BadRequest(authLinkResponse.Message);
-
-            return Redirect(generateStateResponse.Data);
+            
+            return Redirect(authLinkResponse.Data);
         }
 
         [HttpGet("callback")]

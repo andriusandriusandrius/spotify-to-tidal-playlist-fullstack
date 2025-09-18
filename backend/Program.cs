@@ -7,6 +7,15 @@ builder.Services.AddSession();
 
 builder.Services.AddControllers();
 
+builder.Services.AddCors((options) =>
+{
+    options.AddPolicy("AllowAll", policy =>
+{
+    policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+});
+});
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
