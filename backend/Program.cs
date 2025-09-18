@@ -1,6 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 
+var app = builder.Build();
+app.UseSession();
 app.MapGet("/", () => "Hello World!");
 
 app.Run();
