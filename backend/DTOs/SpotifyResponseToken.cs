@@ -11,7 +11,7 @@ namespace backend.DTOs
         [JsonPropertyName("scope")]
         public string? Scope { get; set; }
         [JsonPropertyName("expires_in")]
-        public string? ExpiresIn { get; set; }
+        public int ExpiresIn { get; set; }
         [JsonPropertyName("refresh_token")]
         public string? RefreshToken { get; set; }
     }

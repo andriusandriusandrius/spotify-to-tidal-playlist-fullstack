@@ -49,7 +49,7 @@ namespace backend.Service
             try
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
-                query["response.type"] = "code";
+                query["response_type"] = "code";
                 query["client_id"] = _clientId;
                 query["scope"] = string.Join(" ", _scopes);
                 query["redirect_uri"] = _redirectUri;
@@ -80,6 +80,7 @@ namespace backend.Service
 
                 var json = await response.Content.ReadAsStringAsync();
                 var tokens = JsonSerializer.Deserialize<SpotifyResponseToken>(json);
+                if (tokens == null) return new ApiResponse<SpotifyResponseToken> { Success = false, Message = "Failed to parse spotify tokens!", Data = null };
                 return new ApiResponse<SpotifyResponseToken> { Success = true, Message = $"Success! Succesfully got response tokens", Data = tokens };
             }
             catch (Exception ex)
