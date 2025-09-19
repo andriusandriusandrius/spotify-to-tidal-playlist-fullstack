@@ -11,3 +11,7 @@ export const generateCodeChallange = (verifier: string) => {
   const hash = sha256.arrayBuffer(verifier);
   return base64url(Buffer.from(hash));
 };
+
+export const generateState = () => {
+  return codeVerifier();
+};
