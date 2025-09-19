@@ -9,14 +9,9 @@ export type TidalLoginRequest = {
   code_challange: string;
   state?: string;
 };
-export type TidalLoginResponse = {
-  access_token: string;
-  expires_in: number;
-  refresh_token: string;
-};
 
 const login = async (data: TidalLoginRequest) => {
-  const response = await tidalInstance.post<TidalLoginResponse>('/authorize', data);
+  const response = await tidalInstance.post('/authorize', data);
   return response.data;
 };
 export const useTidalLoginMutation = () => {
