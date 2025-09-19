@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { tidalInstance } from './tidalInstance';
 
-type TidalLoginRequest = {
+export type TidalLoginRequest = {
   client_id: string;
   redirect_uri: string;
   scope: string[];
