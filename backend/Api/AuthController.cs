@@ -1,5 +1,7 @@
+using System.Text.Json;
 using backend.DTOs;
 using backend.Service;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace backend.Api {
@@ -8,9 +10,12 @@ namespace backend.Api {
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly string _frontendUrl;
         public AuthController(IAuthService authService)
         {
+            Env.Load();
             _authService = authService;
+            _frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_REDIR") ?? throw new InvalidOperationException("FRONTEND_REDIR not defined in env");
         }
         [HttpGet("login")]
         public IActionResult Login()
@@ -23,7 +28,7 @@ namespace backend.Api {
 
             ApiResponse<string> authLinkResponse = _authService.BuildSpotifyAuthLink(generateStateResponse.Data);
             if (!authLinkResponse.Success) return BadRequest(authLinkResponse.Message);
-            
+
             return Redirect(authLinkResponse.Data);
         }
 
@@ -36,9 +41,22 @@ namespace backend.Api {
                 return BadRequest("Invalid State");
             }
             ApiResponse<SpotifyResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
-            Console.WriteLine(tokensResponse.Message);
-            if (!tokensResponse.Success) return BadRequest(tokensResponse.Message);
-            return Ok(tokensResponse);       
+            HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse.Data));
+
+            return Redirect($"{_frontendUrl}login/success?state={state}");
+        }
+        [HttpGet("tokens")]
+        public async Task<IActionResult> GetTokens([FromQuery] string state)
+        {
+            var sessionState = HttpContext.Session.GetString("AuthState");
+            if (sessionState == null || state != sessionState)
+            {
+                return BadRequest("Invalid State");
+            }
+            var tokens = HttpContext.Session.GetString("SpotifyTokens");
+            if (tokens == null) return BadRequest("No tokens found");
+
+            return Ok(tokens);
         }
     }
 }
