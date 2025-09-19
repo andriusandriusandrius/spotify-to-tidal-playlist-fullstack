@@ -69,14 +69,12 @@ namespace backend.Service
                 var header = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
                 var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
                 request.Headers.Add("Authorization", $"Basic {header}");
-                Console.WriteLine(header);
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     {"code",code},
                     {"redirect_uri",_redirectUri},
                     {"grant_type","authorization_code"},
                 });
-                Console.WriteLine(request.Content.ToString());
                 var response = await _http.SendAsync(request);
                 response.EnsureSuccessStatusCode();
 
