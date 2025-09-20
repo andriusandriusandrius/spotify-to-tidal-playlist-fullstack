@@ -16,18 +16,18 @@ namespace backend.Service
     }
     public class AuthService : IAuthService
     {
-        private readonly string _clientId;
-        private readonly string _clientSecret;
-        private readonly string _redirectUri;
-        private readonly string[] _scopes;
+        private readonly string _spotifyClientId;
+        private readonly string _spotifyClientSecret;
+        private readonly string _spotifyRedirectUri;
+        private readonly string[] _spotifyScopes;
         private readonly HttpClient _http;
         public AuthService(IHttpClientFactory httpFactory)
         {
             Env.Load();
-            _clientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID") ?? throw new InvalidOperationException("SPOTIFY_CLIENT_ID not defined in env");
-            _clientSecret = Environment.GetEnvironmentVariable("SPOTIFY_SECRET") ?? throw new InvalidOperationException("SPOTIFY_SECRET not defined in env");
-            _redirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIR") ?? throw new InvalidOperationException("SPOTIFY_REDIR not defined in env");
-            _scopes = ["playlist-read-private", "playlist-read-collaborative"];
+            _spotifyClientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID") ?? throw new InvalidOperationException("SPOTIFY_CLIENT_ID not defined in env");
+            _spotifyClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_SECRET") ?? throw new InvalidOperationException("SPOTIFY_SECRET not defined in env");
+            _spotifyRedirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIR") ?? throw new InvalidOperationException("SPOTIFY_REDIR not defined in env");
+            _spotifyScopes = ["playlist-read-private", "playlist-read-collaborative"];
             _http = httpFactory.CreateClient();
         }
         public ApiResponse<string> GenerateState()
@@ -50,9 +50,9 @@ namespace backend.Service
             {
                 var query = HttpUtility.ParseQueryString(string.Empty);
                 query["response_type"] = "code";
-                query["client_id"] = _clientId;
-                query["scope"] = string.Join(" ", _scopes);
-                query["redirect_uri"] = _redirectUri;
+                query["client_id"] = _spotifyClientId;
+                query["scope"] = string.Join(" ", _spotifyScopes);
+                query["redirect_uri"] = _spotifyRedirectUri;
                 query["state"] = state;
 
                 return new ApiResponse<string> { Success = true, Message = "Spotify auth link succesfully built!", Data = $"https://accounts.spotify.com/authorize?{query}" };
@@ -66,13 +66,13 @@ namespace backend.Service
         {
             try
             {
-                var header = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
+                var header = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{_spotifyClientId}:{_spotifyClientSecret}"));
                 var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
                 request.Headers.Add("Authorization", $"Basic {header}");
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     {"code",code},
-                    {"redirect_uri",_redirectUri},
+                    {"redirect_uri",_spotifyRedirectUri},
                     {"grant_type","authorization_code"},
                 });
                 var response = await _http.SendAsync(request);
