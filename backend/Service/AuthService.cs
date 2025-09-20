@@ -1,23 +1,21 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
 using System.Web;
-using backend.Api;
 using backend.DTOs;
 using DotNetEnv;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.ObjectPool;
 namespace backend.Service
 {
     public interface IAuthService
     {
         ApiResponse<string> GenerateState();
         ApiResponse<string> BuildSpotifyAuthLink(string State);
-        Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string code);
+        Task<ApiResponse<ResponseToken>> SpotifyTokenResponse(string code);
         ApiResponse<string> GenerateVerifier();
         ApiResponse<string> GenerateCodeChallenge(string verifier);
         ApiResponse<string> BuildTidalAuthLink(string state, string challenge);
+        Task<ApiResponse<ResponseToken>> TidalTokenResponse(string code, string verifier);
+
     }
     public class AuthService : IAuthService
     {
@@ -25,11 +23,10 @@ namespace backend.Service
         private readonly string _spotifyClientSecret;
         private readonly string _spotifyRedirectUri;
         private readonly string[] _spotifyScopes;
-        private readonly string _tidalClientSecret;
         private readonly string _tidalClientId;
         private readonly string _tidalRedirectUri;
         private readonly string[] _tidalScopes;
-        
+
         private readonly HttpClient _http;
         public AuthService(IHttpClientFactory httpFactory)
         {
@@ -40,7 +37,6 @@ namespace backend.Service
             _spotifyScopes = ["playlist-read-private", "playlist-read-collaborative"];
 
             _tidalClientId = Environment.GetEnvironmentVariable("TIDAL_CLIENT_ID") ?? throw new InvalidOperationException("TIDAL CLIENT ID not defined in env");
-            _tidalClientSecret = Environment.GetEnvironmentVariable("TIDAL_SECRET") ?? throw new InvalidOperationException("TIDAL CLIENT SECRET not defined in env");
             _tidalRedirectUri = Environment.GetEnvironmentVariable("TIDAL_REDIR") ?? throw new InvalidOperationException("TIDAL_REDIR not defined in env");
             _tidalScopes = ["playlists.write", "playlists.read"];
             _http = httpFactory.CreateClient();
@@ -107,11 +103,11 @@ namespace backend.Service
                 return new ApiResponse<string> { Success = false, Message = $"Error: {ex.Message}", Data = null };
             }
         }
-        public async Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string code)
+        public async Task<ApiResponse<ResponseToken>> SpotifyTokenResponse(string code)
         {
             try
             {
-                var header = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{_spotifyClientId}:{_spotifyClientSecret}"));
+                var header = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_spotifyClientId}:{_spotifyClientSecret}"));
                 var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
                 request.Headers.Add("Authorization", $"Basic {header}");
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -124,13 +120,13 @@ namespace backend.Service
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var tokens = JsonSerializer.Deserialize<SpotifyResponseToken>(json);
-                if (tokens == null) return new ApiResponse<SpotifyResponseToken> { Success = false, Message = "Failed to parse spotify tokens!", Data = null };
-                return new ApiResponse<SpotifyResponseToken> { Success = true, Message = $"Success! Succesfully got response tokens", Data = tokens };
+                var tokens = JsonSerializer.Deserialize<ResponseToken>(json);
+                if (tokens == null) return new ApiResponse<ResponseToken> { Success = false, Message = "Failed to parse spotify tokens!", Data = null };
+                return new ApiResponse<ResponseToken> { Success = true, Message = $"Success! Succesfully got response tokens", Data = tokens };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<SpotifyResponseToken> { Success = false, Message = $"Error: {ex.Message}", Data = null };
+                return new ApiResponse<ResponseToken> { Success = false, Message = $"Error: {ex.Message}", Data = null };
             }
         }
         public ApiResponse<string> BuildTidalAuthLink(string state, string challenge)
@@ -151,7 +147,34 @@ namespace backend.Service
             {
                 return new ApiResponse<string> { Success = false, Message = $"Failed to create tidal auth link: {ex.Message}", Data = null };
             }
-            
+
+        }
+        public async Task<ApiResponse<ResponseToken>> TidalTokenResponse(string code, string verifier)
+        {
+            try
+            {
+                Dictionary<string, string> parameters = new(){
+                    {"grant_type","authorization_code"},
+                    { "client_id",_tidalClientId},
+                    { "code",code},
+                    { "redirect_uri",_tidalRedirectUri},
+                    { "code_verifier",verifier}
+
+                };
+                var content = new FormUrlEncodedContent(parameters);
+                var response = await _http.PostAsync("https://auth.tidal.com/v1/oauth2/token", content);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new ApiResponse<ResponseToken> { Success = false, Message = "Failed to return with a token!" };
+                }
+                var json = await response.Content.ReadAsStringAsync();
+                var tokens = JsonSerializer.Deserialize<ResponseToken>(json);
+                return new ApiResponse<ResponseToken> { Success = true, Message = "Token response succeeded!", Data = tokens };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<ResponseToken> { Success = false, Message = $"Exception:{ex.Message}" };
+            }
         }
     }
 }  

@@ -2,7 +2,6 @@ using System.Text.Json;
 using backend.DTOs;
 using backend.Service;
 using DotNetEnv;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace backend.Api
 {
@@ -41,13 +40,13 @@ namespace backend.Api
             {
                 return BadRequest("Invalid State");
             }
-            ApiResponse<SpotifyResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
+            ApiResponse<ResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
             HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse.Data));
 
             return Redirect($"{_frontendUrl}login/success?state={state}");
         }
         [HttpGet("spotify/tokens")]
-        public async Task<IActionResult> SpotifyGetTokens([FromQuery] string state)
+        public IActionResult SpotifyGetTokens([FromQuery] string state)
         {
             var sessionState = HttpContext.Session.GetString("SpotifyAuthState");
             if (sessionState == null || state != sessionState)
@@ -61,7 +60,7 @@ namespace backend.Api
         }
 
         [HttpGet("tidal/login")]
-        public async Task<IActionResult> TidalLogin()
+        public IActionResult TidalLogin()
         {
             ApiResponse<string> stateResponse = _authService.GenerateState();
             if (!stateResponse.Success) return BadRequest(stateResponse.Message);
@@ -80,7 +79,39 @@ namespace backend.Api
 
             return Redirect(authLinkResponse.Data);
 
-            
+
+        }
+        
+        [HttpGet("tidal/callback")]
+        public async Task<IActionResult> TidalCallback([FromQuery] string code, [FromQuery] string state)
+        {
+            var sessionState = HttpContext.Session.GetString("TidalAuthState");
+            if (sessionState == null || sessionState != state)
+            {
+                return BadRequest("Invalid State");
+            }
+            var verifier = HttpContext.Session.GetString("TidalVerifier");
+            if (verifier == null)
+            {
+                return BadRequest("Invalid verifier");
+            }
+            ApiResponse<ResponseToken> tokensResponse = await _authService.TidalTokenResponse(code,verifier);
+            HttpContext.Session.SetString("TidalTokens", JsonSerializer.Serialize(tokensResponse.Data));
+
+            return Redirect($"{_frontendUrl}login/success?state={state}");
+        }
+        [HttpGet("tidal/tokens")]
+        public async Task<IActionResult> TidalGetTokens([FromQuery] string state)
+        {
+            var sessionState = HttpContext.Session.GetString("TidalAuthState");
+            if (sessionState == null || state != sessionState)
+            {
+                return BadRequest("Invalid State");
+            }
+            var tokens = HttpContext.Session.GetString("TidalTokens");
+            if (tokens == null) return BadRequest("No tokens found");
+
+            return Ok(tokens);
         }
     }
     
