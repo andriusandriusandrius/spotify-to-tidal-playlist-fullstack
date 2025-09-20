@@ -41,7 +41,7 @@ namespace backend.Api
             {
                 return BadRequest("Invalid State");
             }
-            ApiResponse<SpotifyResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
+            ApiResponse<ResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
             HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse.Data));
 
             return Redirect($"{_frontendUrl}login/success?state={state}");

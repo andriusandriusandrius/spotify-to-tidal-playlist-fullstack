@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace backend.DTOs
 {
-    public class SpotifyResponseToken
+    public class ResponseToken
     {
         [JsonPropertyName("access_token")]
         public string? AccessToken { get; set; }

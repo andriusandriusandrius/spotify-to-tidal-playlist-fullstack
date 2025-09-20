@@ -1,20 +1,16 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
 using System.Web;
-using backend.Api;
 using backend.DTOs;
 using DotNetEnv;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.ObjectPool;
 namespace backend.Service
 {
     public interface IAuthService
     {
         ApiResponse<string> GenerateState();
         ApiResponse<string> BuildSpotifyAuthLink(string State);
-        Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string code);
+        Task<ApiResponse<ResponseToken>> SpotifyTokenResponse(string code);
         ApiResponse<string> GenerateVerifier();
         ApiResponse<string> GenerateCodeChallenge(string verifier);
         ApiResponse<string> BuildTidalAuthLink(string state, string challenge);
@@ -107,7 +103,7 @@ namespace backend.Service
                 return new ApiResponse<string> { Success = false, Message = $"Error: {ex.Message}", Data = null };
             }
         }
-        public async Task<ApiResponse<SpotifyResponseToken>> SpotifyTokenResponse(string code)
+        public async Task<ApiResponse<ResponseToken>> SpotifyTokenResponse(string code)
         {
             try
             {
@@ -124,13 +120,13 @@ namespace backend.Service
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
-                var tokens = JsonSerializer.Deserialize<SpotifyResponseToken>(json);
-                if (tokens == null) return new ApiResponse<SpotifyResponseToken> { Success = false, Message = "Failed to parse spotify tokens!", Data = null };
-                return new ApiResponse<SpotifyResponseToken> { Success = true, Message = $"Success! Succesfully got response tokens", Data = tokens };
+                var tokens = JsonSerializer.Deserialize<ResponseToken>(json);
+                if (tokens == null) return new ApiResponse<ResponseToken> { Success = false, Message = "Failed to parse spotify tokens!", Data = null };
+                return new ApiResponse<ResponseToken> { Success = true, Message = $"Success! Succesfully got response tokens", Data = tokens };
             }
             catch (Exception ex)
             {
-                return new ApiResponse<SpotifyResponseToken> { Success = false, Message = $"Error: {ex.Message}", Data = null };
+                return new ApiResponse<ResponseToken> { Success = false, Message = $"Error: {ex.Message}", Data = null };
             }
         }
         public ApiResponse<string> BuildTidalAuthLink(string state, string challenge)
