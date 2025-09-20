@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { tidalInstance } from './tidalInstance';
+import { backendInstance } from './tidalInstance';
 
 export type TidalLoginRequest = {
   client_id: string;
@@ -11,7 +11,7 @@ export type TidalLoginRequest = {
 };
 
 const login = async (data: TidalLoginRequest) => {
-  const response = await tidalInstance.post('/authorize', data);
+  const response = await backendInstance.post('/tidal/login', data);
   return response.data;
 };
 export const useTidalLoginMutation = () => {

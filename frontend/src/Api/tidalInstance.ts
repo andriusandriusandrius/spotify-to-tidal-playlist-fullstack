@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { ENV } from './env';
 
-export const tidalInstance = axios.create({
-  baseURL: ENV.TIDAL_LINK || '',
+export const backendInstance = axios.create({
+  baseURL: ENV.BACKEND_LINK || '',
 });
