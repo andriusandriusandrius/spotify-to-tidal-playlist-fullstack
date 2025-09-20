@@ -4,7 +4,8 @@ using backend.Service;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-namespace backend.Api {
+namespace backend.Api
+{
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -17,14 +18,14 @@ namespace backend.Api {
             _authService = authService;
             _frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_REDIR") ?? throw new InvalidOperationException("FRONTEND_REDIR not defined in env");
         }
-        [HttpGet("login")]
-        public IActionResult Login()
+        [HttpGet("spotify/login")]
+        public IActionResult SpotifyLogin()
         {
 
             ApiResponse<string> generateStateResponse = _authService.GenerateState();
             if (!generateStateResponse.Success) return BadRequest(generateStateResponse.Message);
 
-            HttpContext.Session.SetString("AuthState", generateStateResponse.Data);
+            HttpContext.Session.SetString("SpotifyAuthState", generateStateResponse.Data);
 
             ApiResponse<string> authLinkResponse = _authService.BuildSpotifyAuthLink(generateStateResponse.Data);
             if (!authLinkResponse.Success) return BadRequest(authLinkResponse.Message);
@@ -32,10 +33,10 @@ namespace backend.Api {
             return Redirect(authLinkResponse.Data);
         }
 
-        [HttpGet("callback")]
-        public async Task<IActionResult> Callback([FromQuery] string code, [FromQuery] string state)
+        [HttpGet("spotify/callback")]
+        public async Task<IActionResult> SpotifyCallback([FromQuery] string code, [FromQuery] string state)
         {
-            var sessionState = HttpContext.Session.GetString("AuthState");
+            var sessionState = HttpContext.Session.GetString("SpotifyAuthState");
             if (sessionState == null || sessionState != state)
             {
                 return BadRequest("Invalid State");
@@ -45,10 +46,10 @@ namespace backend.Api {
 
             return Redirect($"{_frontendUrl}login/success?state={state}");
         }
-        [HttpGet("tokens")]
-        public async Task<IActionResult> GetTokens([FromQuery] string state)
+        [HttpGet("spotify/tokens")]
+        public async Task<IActionResult> SpotifyGetTokens([FromQuery] string state)
         {
-            var sessionState = HttpContext.Session.GetString("AuthState");
+            var sessionState = HttpContext.Session.GetString("SpotifyAuthState");
             if (sessionState == null || state != sessionState)
             {
                 return BadRequest("Invalid State");
@@ -58,5 +59,29 @@ namespace backend.Api {
 
             return Ok(tokens);
         }
+
+        [HttpGet("tidal/login")]
+        public async Task<IActionResult> TidalLogin()
+        {
+            ApiResponse<string> stateResponse = _authService.GenerateState();
+            if (!stateResponse.Success) return BadRequest(stateResponse.Message);
+            HttpContext.Session.SetString("TidalAuthState", stateResponse.Data);
+
+            ApiResponse<string> verifierResponse = _authService.GenerateVerifier();
+            if (!verifierResponse.Success) return BadRequest(verifierResponse.Message);
+            HttpContext.Session.SetString("TidalVerifier", verifierResponse.Data);
+
+            ApiResponse<string> challengeResponse = _authService.GenerateCodeChallenge(verifierResponse.Data);
+            if (!challengeResponse.Success) return BadRequest(challengeResponse.Message);
+            HttpContext.Session.SetString("TidalChallenge", challengeResponse.Data);
+
+            ApiResponse<string> authLinkResponse = _authService.BuildTidalAuthLink(stateResponse.Data, challengeResponse.Data);
+            if (!authLinkResponse.Success) return BadRequest(authLinkResponse.Message);
+
+            return Redirect(authLinkResponse.Data);
+
+            
+        }
     }
+    
 }
