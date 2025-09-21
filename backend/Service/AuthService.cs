@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Web;
 using backend.DTOs;
+using backend.Exceptions;
 using DotNetEnv;
 namespace backend.Service
 {
@@ -27,8 +28,10 @@ namespace backend.Service
         private readonly string _tidalRedirectUri;
         private readonly string[] _tidalScopes;
 
+        private readonly ILogger<AuthService> _logger;
+
         private readonly HttpClient _http;
-        public AuthService(IHttpClientFactory httpFactory)
+        public AuthService(IHttpClientFactory httpFactory, ILogger<AuthService> logger)
         {
             Env.Load();
             _spotifyClientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID") ?? throw new InvalidOperationException("SPOTIFY_CLIENT_ID not defined in env");
@@ -40,6 +43,7 @@ namespace backend.Service
             _tidalRedirectUri = Environment.GetEnvironmentVariable("TIDAL_REDIR") ?? throw new InvalidOperationException("TIDAL_REDIR not defined in env");
             _tidalScopes = ["playlists.write", "playlists.read"];
             _http = httpFactory.CreateClient();
+            _logger = logger;
         }
         public string GenerateState()
         {
@@ -88,10 +92,15 @@ namespace backend.Service
                 {"grant_type","authorization_code"},
             });
             var response = await _http.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+            var body = await response.Content.ReadAsStringAsync();
 
-            var json = await response.Content.ReadAsStringAsync();
-            var tokens = JsonSerializer.Deserialize<ResponseToken>(json);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Spotify token return endpoint returned: {Status}: {Body}", response.StatusCode, body);
+                throw new ExternalServiceException($"Spotify token response failed ({response.StatusCode})");
+                
+            }
+            var tokens = JsonSerializer.Deserialize<ResponseToken>(body) ?? throw new ExternalServiceException($"Failed to parse Spotify token response");
 
             return tokens;
         }
@@ -122,9 +131,16 @@ namespace backend.Service
             };
             var content = new FormUrlEncodedContent(parameters);
             var response = await _http.PostAsync("https://auth.tidal.com/v1/oauth2/token", content);
-            
-            var json = await response.Content.ReadAsStringAsync();
-            var tokens = JsonSerializer.Deserialize<ResponseToken>(json);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Tidal token return endpoint returned: {Status}: {Body}", response.StatusCode, body);
+                throw new ExternalServiceException($"Tidal token response failed ({response.StatusCode})");
+                
+            }
+
+            var tokens = JsonSerializer.Deserialize<ResponseToken>(body) ?? throw new ExternalServiceException("Failed to parse Tidal token response ");
             return  tokens ;
         }
         

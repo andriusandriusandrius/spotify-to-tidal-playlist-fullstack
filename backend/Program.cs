@@ -43,6 +43,6 @@ app.UseSession();
 
 app.MapControllers();
 
-app.UseMiddleware<ExceptionHandlerMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.Run();

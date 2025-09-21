@@ -1,5 +1,6 @@
 using System.Text.Json;
 using backend.DTOs;
+using backend.Exceptions;
 using backend.Service;
 using DotNetEnv;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +37,7 @@ namespace backend.Api
             var sessionState = HttpContext.Session.GetString("SpotifyAuthState");
             if (sessionState == null || sessionState != state)
             {
-                return BadRequest("Invalid State");
+                throw new StateException ("Invalid Spotify state");
             }
             ResponseToken tokensResponse = await _authService.SpotifyTokenResponse(code);
             HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse));
@@ -49,10 +50,10 @@ namespace backend.Api
             var sessionState = HttpContext.Session.GetString("SpotifyAuthState");
             if (sessionState == null || state != sessionState)
             {
-                return BadRequest("Invalid State");
+               throw new StateException ("Invalid Spotify state");
             }
             var tokens = HttpContext.Session.GetString("SpotifyTokens");
-            if (tokens == null) return BadRequest("No tokens found");
+            if (tokens == null) return NotFound("No tokens found");
 
             return Ok(tokens);
         }
@@ -81,7 +82,7 @@ namespace backend.Api
             var sessionState = HttpContext.Session.GetString("TidalAuthState");
             if (sessionState == null || sessionState != state)
             {
-                return BadRequest("Invalid State");
+                throw new StateException("Invalid State");
             }
             var verifier = HttpContext.Session.GetString("TidalVerifier");
             if (verifier == null)
@@ -99,10 +100,10 @@ namespace backend.Api
             var sessionState = HttpContext.Session.GetString("TidalAuthState");
             if (sessionState == null || state != sessionState)
             {
-                return BadRequest("Invalid State");
+                throw new StateException("Invalid State");
             }
             var tokens = HttpContext.Session.GetString("TidalTokens");
-            if (tokens == null) return BadRequest("No tokens found");
+            if (tokens == null) return NotFound("No tokens found");
 
             return Ok(tokens);
         }

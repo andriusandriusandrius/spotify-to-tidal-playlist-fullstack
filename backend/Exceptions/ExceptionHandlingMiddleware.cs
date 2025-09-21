@@ -4,6 +4,7 @@ namespace backend.Exceptions
 {
     public class DomainException : Exception { public DomainException(string msg) : base(msg) { } }
     public class StateException : Exception { public StateException(string msg) : base(msg) { } }
+    public class InvalidVerifierException : Exception { public InvalidVerifierException(string msg) : base(msg) { } }
     public class ExternalServiceException : Exception { public ExternalServiceException(string msg) : base(msg) { } }
 
     public class ExceptionHandlingMiddleware
@@ -37,6 +38,12 @@ namespace backend.Exceptions
             {
                 _logger.LogWarning(ex, "External service failed");
                 httpContext.Response.StatusCode = StatusCodes.Status502BadGateway;
+                await httpContext.Response.WriteAsJsonAsync(new { error = ex.Message });
+            }
+            catch (InvalidVerifierException ex)
+            {
+                _logger.LogWarning(ex, "Invalid verifier");
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await httpContext.Response.WriteAsJsonAsync(new { error = ex.Message });
             }
             catch (Exception ex)
