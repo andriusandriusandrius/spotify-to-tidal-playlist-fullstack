@@ -1,5 +1,5 @@
 using backend.Service;
-
+using backend.Exceptions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDistributedMemoryCache();
@@ -42,5 +42,7 @@ if (app.Environment.IsDevelopment())
 app.UseSession();
 
 app.MapControllers();
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.Run();
