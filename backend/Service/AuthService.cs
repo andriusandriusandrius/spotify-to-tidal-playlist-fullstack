@@ -70,14 +70,14 @@ namespace backend.Service
         }
         public string BuildSpotifyAuthLink(string state)
         {
-            var query = new Dictionary<string, string>
-            {
-                ["response_type"] = "code",
-                ["client_id"] = _spotifyClientId,
-                ["scope"] = string.Join(" ", _spotifyScopes),
-                ["redirect_uri"] = _spotifyRedirectUri,
-                ["state"] = state,
-            };
+            var query = HttpUtility.ParseQueryString(string.Empty);
+
+            query["response_type"] = "code";
+            query["client_id"] = _spotifyClientId;
+            query["scope"] = string.Join(" ", _spotifyScopes);
+            query["redirect_uri"] = _spotifyRedirectUri;
+            query["state"] = state;
+
             return $"https://accounts.spotify.com/authorize?{query}";    
         }
         public async Task<ResponseToken> SpotifyTokenResponse(string code)
@@ -106,15 +106,15 @@ namespace backend.Service
         }
         public string BuildTidalAuthLink(string state, string challenge)
         {
-            var query = new Dictionary<string, string> {
-                ["response_type"] = "code",
-                ["client_id"] = _tidalClientId,
-                ["scope"] = string.Join(" ", _tidalScopes),
-                ["redirect_uri"] = _tidalRedirectUri,
-                ["code_challenge_method"] = "S256",
-                ["code_challenge"] = challenge,
-                ["state"] = state
-            };
+            var query = HttpUtility.ParseQueryString(string.Empty);
+            
+            query["response_type"] = "code";
+            query["client_id"] = _tidalClientId;
+            query["scope"] = string.Join(" ", _tidalScopes);
+            query["redirect_uri"] = _tidalRedirectUri;
+            query["code_challenge_method"] = "S256";
+            query["code_challenge"] = challenge;
+            query["state"] = state;
 
             return $"https://login.tidal.com/authorize?{query}";
 

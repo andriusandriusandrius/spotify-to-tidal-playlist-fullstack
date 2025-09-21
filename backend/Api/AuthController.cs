@@ -100,7 +100,7 @@ namespace backend.Api
             var sessionState = HttpContext.Session.GetString("TidalAuthState");
             if (sessionState == null || state != sessionState)
             {
-                throw new StateException("Invalid State");
+                throw new StateException("Invalid Tidal State");
             }
             var tokens = HttpContext.Session.GetString("TidalTokens");
             if (tokens == null) return NotFound("No tokens found");
