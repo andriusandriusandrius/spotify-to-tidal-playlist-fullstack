@@ -21,15 +21,13 @@ namespace backend.Api
         public IActionResult SpotifyLogin()
         {
 
-            ApiResponse<string> generateStateResponse = _authService.GenerateState();
-            if (!generateStateResponse.Success) return BadRequest(generateStateResponse.Message);
+            string generateStateResponse = _authService.GenerateState();
 
-            HttpContext.Session.SetString("SpotifyAuthState", generateStateResponse.Data);
+            HttpContext.Session.SetString("SpotifyAuthState", generateStateResponse);
 
-            ApiResponse<string> authLinkResponse = _authService.BuildSpotifyAuthLink(generateStateResponse.Data);
-            if (!authLinkResponse.Success) return BadRequest(authLinkResponse.Message);
+            string authLinkResponse = _authService.BuildSpotifyAuthLink(generateStateResponse);
 
-            return Redirect(authLinkResponse.Data);
+            return Redirect(authLinkResponse);
         }
 
         [HttpGet("spotify/callback")]
@@ -40,8 +38,8 @@ namespace backend.Api
             {
                 return BadRequest("Invalid State");
             }
-            ApiResponse<ResponseToken> tokensResponse = await _authService.SpotifyTokenResponse(code);
-            HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse.Data));
+            ResponseToken tokensResponse = await _authService.SpotifyTokenResponse(code);
+            HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse));
 
             return Redirect($"{_frontendUrl}login/success?state={state}");
         }
@@ -62,22 +60,17 @@ namespace backend.Api
         [HttpGet("tidal/login")]
         public IActionResult TidalLogin()
         {
-            ApiResponse<string> stateResponse = _authService.GenerateState();
-            if (!stateResponse.Success) return BadRequest(stateResponse.Message);
-            HttpContext.Session.SetString("TidalAuthState", stateResponse.Data);
+            string stateResponse = _authService.GenerateState();
+            HttpContext.Session.SetString("TidalAuthState", stateResponse);
 
-            ApiResponse<string> verifierResponse = _authService.GenerateVerifier();
-            if (!verifierResponse.Success) return BadRequest(verifierResponse.Message);
-            HttpContext.Session.SetString("TidalVerifier", verifierResponse.Data);
+            string verifierResponse = _authService.GenerateVerifier();
+            HttpContext.Session.SetString("TidalVerifier", verifierResponse);
 
-            ApiResponse<string> challengeResponse = _authService.GenerateCodeChallenge(verifierResponse.Data);
-            if (!challengeResponse.Success) return BadRequest(challengeResponse.Message);
-            HttpContext.Session.SetString("TidalChallenge", challengeResponse.Data);
+            string challengeResponse = _authService.GenerateCodeChallenge(verifierResponse);
+            HttpContext.Session.SetString("TidalChallenge", challengeResponse);
 
-            ApiResponse<string> authLinkResponse = _authService.BuildTidalAuthLink(stateResponse.Data, challengeResponse.Data);
-            if (!authLinkResponse.Success) return BadRequest(authLinkResponse.Message);
-
-            return Redirect(authLinkResponse.Data);
+            string authLinkResponse = _authService.BuildTidalAuthLink(stateResponse, challengeResponse);
+            return Redirect(authLinkResponse);
 
 
         }
@@ -95,8 +88,8 @@ namespace backend.Api
             {
                 return BadRequest("Invalid verifier");
             }
-            ApiResponse<ResponseToken> tokensResponse = await _authService.TidalTokenResponse(code,verifier);
-            HttpContext.Session.SetString("TidalTokens", JsonSerializer.Serialize(tokensResponse.Data));
+            ResponseToken tokensResponse = await _authService.TidalTokenResponse(code,verifier);
+            HttpContext.Session.SetString("TidalTokens", JsonSerializer.Serialize(tokensResponse));
 
             return Redirect($"{_frontendUrl}login/success?state={state}");
         }
