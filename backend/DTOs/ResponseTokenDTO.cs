@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace backend.DTOs
 {
-    public class ResponseToken
+    public class ResponseTokenDTO
     {
         [JsonPropertyName("access_token")]
         public string? AccessToken { get; set; }

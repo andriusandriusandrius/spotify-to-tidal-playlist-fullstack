@@ -39,7 +39,7 @@ namespace backend.Api
             {
                 throw new StateException ("Invalid Spotify state");
             }
-            ResponseToken tokensResponse = await _authService.SpotifyTokenResponse(code);
+            ResponseTokenDTO tokensResponse = await _authService.SpotifyTokenResponse(code);
             HttpContext.Session.SetString("SpotifyTokens", JsonSerializer.Serialize(tokensResponse));
 
             return Redirect($"{_frontendUrl}login/success?state={state}");
@@ -89,7 +89,7 @@ namespace backend.Api
             {
                 return BadRequest("Invalid verifier");
             }
-            ResponseToken tokensResponse = await _authService.TidalTokenResponse(code,verifier);
+            ResponseTokenDTO tokensResponse = await _authService.TidalTokenResponse(code,verifier);
             HttpContext.Session.SetString("TidalTokens", JsonSerializer.Serialize(tokensResponse));
 
             return Redirect($"{_frontendUrl}login/success?state={state}");

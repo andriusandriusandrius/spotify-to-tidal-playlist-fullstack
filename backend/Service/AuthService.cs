@@ -11,11 +11,11 @@ namespace backend.Service
     {
         string GenerateState();
         string BuildSpotifyAuthLink(string State);
-        Task<ResponseToken> SpotifyTokenResponse(string code);
+        Task<ResponseTokenDTO> SpotifyTokenResponse(string code);
         string GenerateVerifier();
         string GenerateCodeChallenge(string verifier);
         string BuildTidalAuthLink(string state, string challenge);
-        Task<ResponseToken> TidalTokenResponse(string code, string verifier);
+        Task<ResponseTokenDTO> TidalTokenResponse(string code, string verifier);
 
     }
     public class AuthService : IAuthService
@@ -80,7 +80,7 @@ namespace backend.Service
 
             return $"https://accounts.spotify.com/authorize?{query}";    
         }
-        public async Task<ResponseToken> SpotifyTokenResponse(string code)
+        public async Task<ResponseTokenDTO> SpotifyTokenResponse(string code)
         {
             var header = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_spotifyClientId}:{_spotifyClientSecret}"));
             var request = new HttpRequestMessage(HttpMethod.Post, "https://accounts.spotify.com/api/token");
@@ -100,7 +100,7 @@ namespace backend.Service
                 throw new ExternalServiceException($"Spotify token response failed ({response.StatusCode})");
                 
             }
-            var tokens = JsonSerializer.Deserialize<ResponseToken>(body) ?? throw new ExternalServiceException($"Failed to parse Spotify token response");
+            var tokens = JsonSerializer.Deserialize<ResponseTokenDTO>(body) ?? throw new ExternalServiceException($"Failed to parse Spotify token response");
 
             return tokens;
         }
@@ -119,7 +119,7 @@ namespace backend.Service
             return $"https://login.tidal.com/authorize?{query}";
 
         }
-        public async Task<ResponseToken> TidalTokenResponse(string code, string verifier)
+        public async Task<ResponseTokenDTO> TidalTokenResponse(string code, string verifier)
         {
             Dictionary<string, string> parameters = new(){
                 {"grant_type","authorization_code"},
@@ -140,7 +140,7 @@ namespace backend.Service
                 
             }
 
-            var tokens = JsonSerializer.Deserialize<ResponseToken>(body) ?? throw new ExternalServiceException("Failed to parse Tidal token response ");
+            var tokens = JsonSerializer.Deserialize<ResponseTokenDTO>(body) ?? throw new ExternalServiceException("Failed to parse Tidal token response ");
             return  tokens ;
         }
         
