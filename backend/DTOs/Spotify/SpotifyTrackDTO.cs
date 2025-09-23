@@ -9,7 +9,7 @@ namespace backend.DTOs.Spotify
         [JsonPropertyName("name")]
         public string? Name { get; set; }
         [JsonPropertyName("artists")]
-        public List<SpotifyArtistDTO>? Artists = new();
+        public List<SpotifyArtistDTO>? Artists { get; set; } = new();
         [JsonPropertyName("album")]
         public SpotifyAlbumDTO? Album { get; set; }
         [JsonPropertyName("external_ids")]

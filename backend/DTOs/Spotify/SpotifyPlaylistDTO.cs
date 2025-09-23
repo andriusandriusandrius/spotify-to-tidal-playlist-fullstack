@@ -14,6 +14,6 @@ namespace backend.DTOs.Spotify
         [JsonPropertyName("public")]
         public bool Public { get; set; }
         [JsonPropertyName("tracks")]
-        public List<SpotifyTrackDTO> Tracks { get; set; } = new();
+        public SpotifyPlaylistTracksDTO Tracks { get; set; } = new();
     }
 }

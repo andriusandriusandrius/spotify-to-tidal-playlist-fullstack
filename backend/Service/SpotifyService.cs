@@ -17,18 +17,16 @@ namespace backend.Service
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<SpotifyService> _logger;
-        private const string BaseUrl = "https://api.spotify.com/v1";
 
         public SpotifyService(HttpClient httpClient, ILogger<SpotifyService> logger)
         {
             _httpClient = httpClient;
             _logger = logger;
-            _httpClient.BaseAddress = new Uri(BaseUrl);
         }
         public async Task<SpotifyPlaylistDTO> GetPlaylist(string playlistId, string accessToken)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await _httpClient.GetAsync($"/playlists/{playlistId}");
+            var response = await _httpClient.GetAsync($"https://api.spotify.com/v1/playlists/{playlistId}");
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("GetPlaylist endpoint returned: {Status}", response.StatusCode);
@@ -97,7 +95,7 @@ namespace backend.Service
                     List<SpotifyPlaylistDTO> playlists = playlistsResponse.Items;
                     allPlaylists.AddRange(playlists);
                 }
-                areMore = playlistsResponse?.Next == null;
+                areMore = playlistsResponse?.Next != null;
                 offset += limit;
                 await Task.Delay(100);
             }
