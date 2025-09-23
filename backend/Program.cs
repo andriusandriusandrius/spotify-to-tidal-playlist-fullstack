@@ -22,8 +22,10 @@ builder.Services.AddCors((options) =>
 });
 });
 builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddHttpClient<ISpotifyService, SpotifyService>();
+builder.Services.AddScoped<ISpotifyService, SpotifyService>();
+builder.Services.AddScoped<ITidalService, TidalService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
