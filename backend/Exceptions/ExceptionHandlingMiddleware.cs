@@ -46,12 +46,25 @@ namespace backend.Exceptions
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await httpContext.Response.WriteAsJsonAsync(new { error = ex.Message });
             }
+            catch (HttpRequestException ex)
+            { 
+                _logger.LogWarning(ex, "HTTP request failed");
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await httpContext.Response.WriteAsJsonAsync(new { error = ex.Message });
+            }
+             catch (JsonException ex)
+            { 
+                _logger.LogWarning(ex, "Json failed");
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await httpContext.Response.WriteAsJsonAsync(new { error = ex.Message });
+            }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Unhandled exception");
-                httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 await httpContext.Response.WriteAsJsonAsync(new { error = ex.Message });
             }
+            
         }
     }
 
