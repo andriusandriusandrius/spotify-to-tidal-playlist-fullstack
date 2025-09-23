@@ -23,6 +23,7 @@ builder.Services.AddCors((options) =>
 });
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHttpClient<ISpotifyService, SpotifyService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -41,8 +42,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseSession();
 
-app.MapControllers();
-
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.MapControllers();
 
 app.Run();
