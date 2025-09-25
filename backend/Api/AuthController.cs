@@ -95,7 +95,7 @@ namespace backend.Api
             return Redirect($"{_frontendUrl}login/success?state={state}");
         }
         [HttpGet("tidal/tokens")]
-        public async Task<IActionResult> TidalGetTokens([FromQuery] string state)
+        public IActionResult TidalGetTokens([FromQuery] string state)
         {
             var sessionState = HttpContext.Session.GetString("TidalAuthState");
             if (sessionState == null || state != sessionState)

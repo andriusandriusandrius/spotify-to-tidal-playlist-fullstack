@@ -5,6 +5,6 @@ namespace backend.DTOs.Tidal
     public class TidalSearchResponse
     {
         [JsonPropertyName("data")]
-        public List<TidalTrackDTO> Data { get; set; } = new();
+        public List<TidalTrackIdDTO> Data { get; set; } = new();
     }
 }
