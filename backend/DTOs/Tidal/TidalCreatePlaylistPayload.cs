@@ -6,26 +6,28 @@ namespace backend.DTOs.Tidal
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TidalAccessType
     {
-        Public,
-        Private
+        PUBLIC,
+        PRIVATE
     }
     public class TidalCreatePlaylistPayload
     {
 
         [JsonPropertyName("data")]
-        public TidalCreatePlaylistData? Data { get; set; }
+        public TidalCreatePlaylistPayloadtData? Data { get; set; }
     }
     
-    public class TidalCreatePlaylistData
+    public class TidalCreatePlaylistPayloadtData
         {
             [JsonPropertyName("attributes")]
-            public TidalCreatePlaylistAttributes? Attributes { get; set; }
-            public string Type = "playlists";
+            public TidalCreatePlaylistPayloadAttributes? Attributes { get; set; }
+            
+            [JsonPropertyName("type")]
+            public string Type { get; set; } = "playlists";
         }
-    public class TidalCreatePlaylistAttributes
+    public class TidalCreatePlaylistPayloadAttributes
         {
-            [JsonPropertyName("accesstype")]
-            public string? AccessType { get; set; }
+            [JsonPropertyName("accessType")]
+            public TidalAccessType AccessType { get; set; }
             [JsonPropertyName("description")]
             public string? Description { get; set; }
             [JsonPropertyName("name")]
