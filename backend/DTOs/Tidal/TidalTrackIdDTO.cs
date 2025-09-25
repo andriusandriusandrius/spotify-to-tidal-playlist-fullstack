@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace backend.DTOs.Tidal
 {
 
-    public class TidalTrackDTO
+    public class TidalTrackIdDTO
     {
         [JsonPropertyName("id")]
         public string? Id { get; set; }

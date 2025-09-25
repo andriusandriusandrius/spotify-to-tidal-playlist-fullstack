@@ -7,7 +7,7 @@ namespace backend.Service
 {
     public interface ITidalService
     {
-        Task<List<TidalTrackDTO>> GetTracksByIsrc(string isrc, string accessToken);
+        Task<List<TidalTrackIdDTO>> GetTracksByIsrc(string isrc, string accessToken);
     }
     public class TidalService : ITidalService
     {
@@ -20,7 +20,7 @@ namespace backend.Service
             _logger = logger;
             _httpClient.BaseAddress = new Uri(BaseUrl);
         }
-        public async Task<List<TidalTrackDTO>> GetTracksByIsrc(string isrc, string accessToken)
+        public async Task<List<TidalTrackIdDTO>> GetTracksByIsrc(string isrc, string accessToken)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var response = await _httpClient.GetAsync($"tracks?countryCode=US&filter%5Bisrc%5D={isrc}");
@@ -32,7 +32,7 @@ namespace backend.Service
             var jsonContent = await response.Content.ReadAsStringAsync();
             var trackResponse = JsonSerializer.Deserialize<TidalSearchResponse>(jsonContent) ??throw new JsonException($"Failed to deserialize playlist failed ({response.StatusCode})"); ;
 
-            List<TidalTrackDTO> tracks = trackResponse.Data;
+            List<TidalTrackIdDTO> tracks = trackResponse.Data;
 
             return tracks;
         }
