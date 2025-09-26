@@ -1,15 +1,27 @@
 using backend.Service;
 using backend.Exceptions;
+using StackExchange.Redis;
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var redisConnection = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    return ConnectionMultiplexer.Connect(redisConnection);
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+    options.InstanceName = "Spotify-Tidal-Session";
+});
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = "Spotify-Tidal.Session"; // Custom cookie name
 });
-
 builder.Services.AddControllers();
 
 builder.Services.AddCors((options) =>
@@ -41,6 +53,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
+app.UseRouting();
 
 app.UseSession();
 
