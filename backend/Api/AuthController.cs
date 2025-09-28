@@ -1,9 +1,11 @@
 using System.Text.Json;
+using backend.Configurations;
 using backend.DTOs;
 using backend.Exceptions;
 using backend.Service;
 using DotNetEnv;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 namespace backend.Api
 {
@@ -19,11 +21,10 @@ namespace backend.Api
         private readonly IAuthService _authService;
         private readonly string _frontendUrl;
         private readonly IDatabase _redis;
-        public AuthController(IAuthService authService, IConnectionMultiplexer redis)
+        public AuthController(IAuthService authService, IConnectionMultiplexer redis, IOptions<TidalAuthOptions> config)
         {
-            Env.Load();
             _authService = authService;
-            _frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_REDIR") ?? throw new InvalidOperationException("FRONTEND_REDIR not defined in env");
+            _frontendUrl = config.Value.FrontendRedir ?? throw  new InvalidOperationException("FrontendRedir not defined");
             _redis = redis.GetDatabase();
         }
         

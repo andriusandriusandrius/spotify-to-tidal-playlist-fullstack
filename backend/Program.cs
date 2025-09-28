@@ -1,6 +1,7 @@
 using backend.Service;
 using backend.Exceptions;
 using StackExchange.Redis;
+using backend.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -20,8 +21,16 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.Name = "Spotify-Tidal.Session"; // Custom cookie name
+    options.Cookie.Name = "Spotify-Tidal.Session";
 });
+
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+builder.Services.Configure<TidalAuthOptions>(
+    builder.Configuration.GetSection("TidalAuthOptions"));
+builder.Services.Configure<SpotifyAuthOptions>(
+    builder.Configuration.GetSection("SpotifyAuthOptions"));
+
 builder.Services.AddControllers();
 
 builder.Services.AddCors((options) =>
