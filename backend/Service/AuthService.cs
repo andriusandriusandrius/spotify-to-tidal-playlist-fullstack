@@ -2,9 +2,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Web;
+using backend.Configurations;
 using backend.DTOs;
 using backend.Exceptions;
 using DotNetEnv;
+using Microsoft.Extensions.Options;
+using Sprache;
 namespace backend.Service
 {
     public interface IAuthService
@@ -31,17 +34,17 @@ namespace backend.Service
         private readonly ILogger<AuthService> _logger;
 
         private readonly HttpClient _http;
-        public AuthService(IHttpClientFactory httpFactory, ILogger<AuthService> logger)
+        public AuthService(IHttpClientFactory httpFactory, ILogger<AuthService> logger, IOptions<SpotifyAuthOptions> spotifyOptions, IOptions<TidalAuthOptions> tidalOptions)
         {
             Env.Load();
-            _spotifyClientId = Environment.GetEnvironmentVariable("SPOTIFY_CLIENT_ID") ?? throw new InvalidOperationException("SPOTIFY_CLIENT_ID not defined in env");
-            _spotifyClientSecret = Environment.GetEnvironmentVariable("SPOTIFY_SECRET") ?? throw new InvalidOperationException("SPOTIFY_SECRET not defined in env");
-            _spotifyRedirectUri = Environment.GetEnvironmentVariable("SPOTIFY_REDIR") ?? throw new InvalidOperationException("SPOTIFY_REDIR not defined in env");
-            _spotifyScopes = ["playlist-read-private", "playlist-read-collaborative"];
+            _spotifyClientId = spotifyOptions.Value.ClientId?? throw new InvalidOperationException("SPOTIFY_CLIENT_ID not defined");
+            _spotifyClientSecret =  spotifyOptions.Value.Secret?? throw new InvalidOperationException("SPOTIFY_SECRET not defined");
+            _spotifyRedirectUri = spotifyOptions.Value.Redir ?? throw new InvalidOperationException("SPOTIFY_REDIR not defined");
+            _spotifyScopes = spotifyOptions.Value.Scopes ?? throw new InvalidOperationException("SPOTIFY_SCOPES not defined");
 
-            _tidalClientId = Environment.GetEnvironmentVariable("TIDAL_CLIENT_ID") ?? throw new InvalidOperationException("TIDAL CLIENT ID not defined in env");
-            _tidalRedirectUri = Environment.GetEnvironmentVariable("TIDAL_REDIR") ?? throw new InvalidOperationException("TIDAL_REDIR not defined in env");
-            _tidalScopes = ["playlists.write", "playlists.read"];
+            _tidalClientId = tidalOptions.Value.ClientId ?? throw new InvalidOperationException("TIDAL CLIENT ID not defined");
+            _tidalRedirectUri = tidalOptions.Value.Redir ?? throw new InvalidOperationException("TIDAL_REDIR not defined");
+            _tidalScopes = tidalOptions.Value.Scopes ?? throw new InvalidOperationException("TIDAL_SCOPES not defined");
             _http = httpFactory.CreateClient();
             _logger = logger;
         }
