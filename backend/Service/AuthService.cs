@@ -5,9 +5,7 @@ using System.Web;
 using backend.Configurations;
 using backend.DTOs;
 using backend.Exceptions;
-using DotNetEnv;
 using Microsoft.Extensions.Options;
-using Sprache;
 namespace backend.Service
 {
     public interface IAuthService
@@ -36,7 +34,6 @@ namespace backend.Service
         private readonly HttpClient _http;
         public AuthService(IHttpClientFactory httpFactory, ILogger<AuthService> logger, IOptions<SpotifyAuthOptions> spotifyOptions, IOptions<TidalAuthOptions> tidalOptions)
         {
-            Env.Load();
             _spotifyClientId = spotifyOptions.Value.ClientId?? throw new InvalidOperationException("SPOTIFY_CLIENT_ID not defined");
             _spotifyClientSecret =  spotifyOptions.Value.Secret?? throw new InvalidOperationException("SPOTIFY_SECRET not defined");
             _spotifyRedirectUri = spotifyOptions.Value.Redir ?? throw new InvalidOperationException("SPOTIFY_REDIR not defined");
