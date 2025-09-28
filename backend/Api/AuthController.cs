@@ -3,7 +3,6 @@ using backend.Configurations;
 using backend.DTOs;
 using backend.Exceptions;
 using backend.Service;
-using DotNetEnv;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
