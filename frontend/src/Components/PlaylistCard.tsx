@@ -5,9 +5,10 @@ type PlaylistProps = {
 };
 
 export function PlaylistCard({ src }: PlaylistProps) {
+  const imageUrl = src?.images?.[0]?.url ?? '/placeholder.png';
   return (
     <div className="flex">
-      <img src={src?.images[0].url} />
+      <img src={imageUrl} />
     </div>
   );
 }

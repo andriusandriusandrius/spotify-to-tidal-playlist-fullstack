@@ -18,6 +18,13 @@ function RouteComponent() {
     else setPlaylists(null);
   }, [data]);
 
+  if (isLoading) {
+    return <></>;
+  }
+  if (isError) {
+    return <></>;
+  }
+
   return (
     <div className="flex justify-center">
       <div className="h-full w-96 rounded-2xl bg-slate-400 p-8">
