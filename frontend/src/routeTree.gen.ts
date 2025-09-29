@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FromRouteImport } from './routes/from'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TransferIndexRouteImport } from './routes/transfer/index'
+import { Route as LoginSuccessRouteImport } from './routes/login/success'
 
 const FromRoute = FromRouteImport.update({
   id: '/from',
@@ -22,31 +24,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TransferIndexRoute = TransferIndexRouteImport.update({
+  id: '/transfer/',
+  path: '/transfer/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginSuccessRoute = LoginSuccessRouteImport.update({
+  id: '/login/success',
+  path: '/login/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/from': typeof FromRoute
+  '/login/success': typeof LoginSuccessRoute
+  '/transfer': typeof TransferIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/from': typeof FromRoute
+  '/login/success': typeof LoginSuccessRoute
+  '/transfer': typeof TransferIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/from': typeof FromRoute
+  '/login/success': typeof LoginSuccessRoute
+  '/transfer/': typeof TransferIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/from'
+  fullPaths: '/' | '/from' | '/login/success' | '/transfer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/from'
-  id: '__root__' | '/' | '/from'
+  to: '/' | '/from' | '/login/success' | '/transfer'
+  id: '__root__' | '/' | '/from' | '/login/success' | '/transfer/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FromRoute: typeof FromRoute
+  LoginSuccessRoute: typeof LoginSuccessRoute
+  TransferIndexRoute: typeof TransferIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +85,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/transfer/': {
+      id: '/transfer/'
+      path: '/transfer'
+      fullPath: '/transfer'
+      preLoaderRoute: typeof TransferIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/success': {
+      id: '/login/success'
+      path: '/login/success'
+      fullPath: '/login/success'
+      preLoaderRoute: typeof LoginSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FromRoute: FromRoute,
+  LoginSuccessRoute: LoginSuccessRoute,
+  TransferIndexRoute: TransferIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
