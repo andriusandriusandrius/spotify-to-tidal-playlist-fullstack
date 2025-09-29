@@ -8,7 +8,6 @@ export const Route = createFileRoute('/from')({
 
 function RouteComponent() {
   const clickToSpotify = () => {
-    alert(ENV.API_BASE_URL);
     window.location.href = `${ENV.API_BASE_URL}api/Auth/spotify/login`;
   };
   return (
