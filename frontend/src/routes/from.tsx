@@ -1,12 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Button } from '../Components/Button';
+import { ENV } from '../Api/utils';
 
 export const Route = createFileRoute('/from')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const clickToSpotify = () => {};
+  const clickToSpotify = () => {
+    alert(ENV.API_BASE_URL);
+    window.location.href = `${ENV.API_BASE_URL}api/Auth/spotify/login`;
+  };
   return (
     <div className="flex h-full flex-col items-center justify-center">
       <div className="flex w-96 flex-col justify-center rounded-2xl bg-slate-600 p-4">
