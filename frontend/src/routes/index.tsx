@@ -8,7 +8,7 @@ export const Route = createFileRoute('/')({
 function Index() {
   const navigate = useNavigate();
   useEffect(() => {
-    navigate({ to: '/login' });
+    navigate({ to: '/from' });
   }, [navigate]);
   return <></>;
 }
