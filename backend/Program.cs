@@ -64,6 +64,8 @@ if (app.Environment.IsDevelopment())
 }
 app.UseRouting();
 
+app.UseCors("AllowAll");
+
 app.UseSession();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
