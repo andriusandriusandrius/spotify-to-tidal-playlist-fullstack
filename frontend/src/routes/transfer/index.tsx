@@ -27,11 +27,11 @@ function RouteComponent() {
 
   return (
     <div className="flex justify-center">
-      <div className="h-full w-96 rounded-2xl bg-slate-400 p-8">
+      <div className="flex h-full w-96 flex-col gap-4 rounded-2xl bg-slate-400 p-8">
         {playlists?.map((playlist) => (
-          <li key={playlist.id}>
+          <div key={playlist.id}>
             <PlaylistCard src={playlist} />
-          </li>
+          </div>
         ))}
       </div>
     </div>
