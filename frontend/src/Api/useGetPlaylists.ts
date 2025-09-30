@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiInstance } from './utils';
-import type { Playlist } from '../Types/Playlist';
+import type { PlaylistApi } from '../Types/Playlist';
 
-async function fetchPlaylists(state: string): Promise<Playlist[]> {
+async function fetchPlaylists(state: string): Promise<PlaylistApi[]> {
   const response = await apiInstance.get('api/Spotify/playlist', {
     params: { state },
   });

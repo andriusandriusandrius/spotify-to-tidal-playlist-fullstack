@@ -14,8 +14,12 @@ function RouteComponent() {
   const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
 
   useEffect(() => {
-    if (data) setPlaylists(data);
-    else setPlaylists(null);
+    if (data) {
+      const playlists: Playlist[] = data.map((playlist) => ({ ...playlist, picked: false }));
+      setPlaylists(playlists);
+    } else {
+      setPlaylists(null);
+    }
   }, [data]);
 
   if (isLoading) {
