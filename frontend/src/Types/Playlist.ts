@@ -8,10 +8,13 @@ type PlaylistTrack = {
   total: number;
 };
 
-export type Playlist = {
+export type PlaylistApi = {
   id: string;
   images: PlaylistImage[];
   name: string;
   public: boolean;
   tracks: PlaylistTrack;
+};
+export type Playlist = PlaylistApi & {
+  picked: boolean;
 };
