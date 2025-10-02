@@ -22,6 +22,14 @@ function RouteComponent() {
     }
   }, [data]);
 
+  const handleTogglePicked = (id: string | undefined, checked: boolean) => {
+    if (id) {
+      setPlaylists((prev) =>
+        prev ? prev.map((playlist) => (playlist.id === id ? { ...playlist, picked: checked } : playlist)) : prev,
+      );
+    }
+  };
+
   if (isLoading) {
     return <></>;
   }
@@ -34,7 +42,7 @@ function RouteComponent() {
       <div className="flex h-full w-96 flex-col gap-4 rounded-2xl bg-slate-400 p-8">
         {playlists?.map((playlist) => (
           <div key={playlist.id}>
-            <PlaylistCard src={playlist} />
+            <PlaylistCard src={playlist} onToggle={handleTogglePicked} />
           </div>
         ))}
       </div>
