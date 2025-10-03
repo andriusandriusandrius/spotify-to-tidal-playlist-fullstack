@@ -3,6 +3,7 @@ import { useGetPlaylists } from '../../Api/useGetPlaylists';
 import { PlaylistCard } from '../../Components/PlaylistCard';
 import type { Playlist } from '../../Types/Playlist';
 import { useEffect, useState } from 'react';
+import { Button } from '../../Components/Button';
 
 export const Route = createFileRoute('/transfer/')({
   component: RouteComponent,
@@ -30,6 +31,13 @@ function RouteComponent() {
     }
   };
 
+  const handleSelectAll = () => {
+    setPlaylists((prev) => {
+      if (!prev) return prev;
+      const allPicked = prev.every((p) => p.picked === true);
+      return prev.map((pl) => ({ ...pl, picked: !allPicked }));
+    });
+  };
   if (isLoading) {
     return <></>;
   }
@@ -38,7 +46,11 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex justify-center">
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div className="flex gap-2">
+        <Button type="button" label="Login with tidal and transfer playlists" variant="primary" />
+        <Button type="button" label="Select All" variant="primary" onClick={handleSelectAll} />
+      </div>
       <div className="flex h-full w-96 flex-col gap-4 rounded-2xl bg-slate-400 p-8">
         {playlists?.map((playlist) => (
           <div key={playlist.id}>
