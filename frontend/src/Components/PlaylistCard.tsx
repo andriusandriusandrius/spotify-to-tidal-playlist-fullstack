@@ -13,6 +13,7 @@ export const PlaylistCard = memo(function PlaylistCard({ src, onToggle }: Playli
       <input
         type="checkbox"
         className="mr-3 ml-2 h-10 w-10 accent-blue-500"
+        checked={!!src?.picked}
         onChange={(e) => onToggle(src?.id, e.target.checked)}
       />
       <img className="h-12 w-12 rounded-md object-cover" src={imageUrl} />
