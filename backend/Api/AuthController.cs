@@ -54,7 +54,7 @@ namespace backend.Api
 
             await _redis.StringSetAsync($"spotify:tokens:{state}", JsonSerializer.Serialize(tokensResponse), TimeSpan.FromHours(1)); 
 
-            return Redirect($"{_frontendUrl}login/success?state={state}");
+            return Redirect($"{_frontendUrl}to/success?state={state}");
         }
         [HttpGet("spotify/tokens")]
         public async Task<IActionResult> SpotifyGetTokens([FromQuery] string state)
@@ -104,7 +104,7 @@ namespace backend.Api
             
             await _redis.StringSetAsync($"tidal:tokens:{state}", JsonSerializer.Serialize(tokens), TimeSpan.FromHours(1));
 
-            return Redirect($"{_frontendUrl}login/success?state={state}");
+            return Redirect($"{_frontendUrl}transfer/success?state={state}");
         }
         [HttpGet("tidal/tokens")]
         public async Task<IActionResult> TidalGetTokens([FromQuery] string state)
