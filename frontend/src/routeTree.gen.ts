@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FromRouteImport } from './routes/from'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TransferIndexRouteImport } from './routes/transfer/index'
-import { Route as LoginSuccessRouteImport } from './routes/login/success'
+import { Route as TransferSuccessRouteImport } from './routes/transfer/success'
+import { Route as ToSuccessRouteImport } from './routes/to/success'
 
 const FromRoute = FromRouteImport.update({
   id: '/from',
@@ -24,49 +24,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TransferIndexRoute = TransferIndexRouteImport.update({
-  id: '/transfer/',
-  path: '/transfer/',
+const TransferSuccessRoute = TransferSuccessRouteImport.update({
+  id: '/transfer/success',
+  path: '/transfer/success',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginSuccessRoute = LoginSuccessRouteImport.update({
-  id: '/login/success',
-  path: '/login/success',
+const ToSuccessRoute = ToSuccessRouteImport.update({
+  id: '/to/success',
+  path: '/to/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/from': typeof FromRoute
-  '/login/success': typeof LoginSuccessRoute
-  '/transfer': typeof TransferIndexRoute
+  '/to/success': typeof ToSuccessRoute
+  '/transfer/success': typeof TransferSuccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/from': typeof FromRoute
-  '/login/success': typeof LoginSuccessRoute
-  '/transfer': typeof TransferIndexRoute
+  '/to/success': typeof ToSuccessRoute
+  '/transfer/success': typeof TransferSuccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/from': typeof FromRoute
-  '/login/success': typeof LoginSuccessRoute
-  '/transfer/': typeof TransferIndexRoute
+  '/to/success': typeof ToSuccessRoute
+  '/transfer/success': typeof TransferSuccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/from' | '/login/success' | '/transfer'
+  fullPaths: '/' | '/from' | '/to/success' | '/transfer/success'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/from' | '/login/success' | '/transfer'
-  id: '__root__' | '/' | '/from' | '/login/success' | '/transfer/'
+  to: '/' | '/from' | '/to/success' | '/transfer/success'
+  id: '__root__' | '/' | '/from' | '/to/success' | '/transfer/success'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FromRoute: typeof FromRoute
-  LoginSuccessRoute: typeof LoginSuccessRoute
-  TransferIndexRoute: typeof TransferIndexRoute
+  ToSuccessRoute: typeof ToSuccessRoute
+  TransferSuccessRoute: typeof TransferSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,18 +85,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/transfer/': {
-      id: '/transfer/'
-      path: '/transfer'
-      fullPath: '/transfer'
-      preLoaderRoute: typeof TransferIndexRouteImport
+    '/transfer/success': {
+      id: '/transfer/success'
+      path: '/transfer/success'
+      fullPath: '/transfer/success'
+      preLoaderRoute: typeof TransferSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login/success': {
-      id: '/login/success'
-      path: '/login/success'
-      fullPath: '/login/success'
-      preLoaderRoute: typeof LoginSuccessRouteImport
+    '/to/success': {
+      id: '/to/success'
+      path: '/to/success'
+      fullPath: '/to/success'
+      preLoaderRoute: typeof ToSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -105,8 +105,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FromRoute: FromRoute,
-  LoginSuccessRoute: LoginSuccessRoute,
-  TransferIndexRoute: TransferIndexRoute,
+  ToSuccessRoute: ToSuccessRoute,
+  TransferSuccessRoute: TransferSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
