@@ -5,13 +5,13 @@ import type { Playlist } from '../../Types/Playlist';
 import { useEffect, useState } from 'react';
 import { Button } from '../../Components/Button';
 
-export const Route = createFileRoute('/transfer/')({
+export const Route = createFileRoute('/transfer/success')({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const state = localStorage.getItem('state') ?? '';
-  const { data, isLoading, isError } = useGetPlaylists(state);
+  const fromState = localStorage.getItem('fromState') ?? '';
+  const { data, isLoading, isError } = useGetPlaylists(fromState);
   const [playlists, setPlaylists] = useState<Playlist[] | null>(null);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <div className="flex gap-2">
-        <Button type="button" label="Login with tidal and transfer playlists" variant="primary" />
+        <Button type="button" label="Transfer playlists" variant="primary" />
         <Button type="button" label="Select All" variant="primary" onClick={handleSelectAll} />
       </div>
       <div className="flex h-full w-96 flex-col gap-4 rounded-2xl bg-slate-400 p-8">
