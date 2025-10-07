@@ -1,11 +1,12 @@
-type PlaylistTrack = {
-  id: string;
-  name: string;
-  external_ids: {
-    isrc: string;
+export type PlaylistTrack = {
+  track: {
+    id: string;
+    name: string;
+    external_ids: {
+      isrc: string;
+    };
   };
 };
-export type PlaylistTracksDetailed = {
-  href: string;
-  items: PlaylistTrack[];
+export type TidalTrackId = {
+  id: string;
 };

@@ -16,6 +16,12 @@ export type PlaylistApi = {
   public: boolean;
   tracks: PlaylistTracks;
 };
+
+export type TidalPlaylistId = {
+  data: {
+    id: string;
+  };
+};
 export type Playlist = PlaylistApi & {
   picked: boolean;
   tracksDetailed: PlaylistTracksDetailed | null;
