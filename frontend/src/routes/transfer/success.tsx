@@ -4,7 +4,7 @@ import { PlaylistCard } from '../../Components/PlaylistCard';
 import type { Playlist } from '../../Types/Playlist';
 import { useEffect, useState } from 'react';
 import { Button } from '../../Components/Button';
-import { fetchPlaylistTracksDetailed } from '../../Api/fetchPlaylistTracks';
+import { fetchPlaylistTracks } from '../../Api/fetchPlaylistTracks';
 import type { RedirParam } from '../../Types/Auth';
 import { fetchTidalSearchTrack } from '../../Api/fetchTidalSearchTrack';
 import { createTidalPlaylist } from '../../Api/createTidalPlaylist';
@@ -20,17 +20,17 @@ async function findTidalTracks(playlistItems: PlaylistTrack[], tidalTrackIds: st
   let foundCount = 0;
   let skippedCount = 0;
   for (const element of playlistItems) {
-    const isrc = element.track.external_ids.isrc;
+    const isrc = element.external_ids.isrc.toUpperCase();
 
     if (!isrc) {
-      console.warn('Skipping track without ISRC:', element.track.name);
+      console.warn('Skipping track without ISRC:', element.name);
       skippedCount++;
       continue;
     }
     try {
       const foundTrackId = await fetchTidalSearchTrack(toState, isrc);
       if (!foundTrackId || !foundTrackId.id) {
-        console.warn('Track not on tidal', element.track.name);
+        console.warn('Track not on tidal', element.name);
         skippedCount++;
         continue;
       }
@@ -39,7 +39,7 @@ async function findTidalTracks(playlistItems: PlaylistTrack[], tidalTrackIds: st
       foundCount++;
       await delay(300);
     } catch (error) {
-      console.error('Error searching for track:', element.track.name, error);
+      console.error('Error searching for track:', element.name, error);
       skippedCount++;
     }
   }
@@ -103,8 +103,8 @@ function RouteComponent() {
       const tidalTrackIds: string[] = [];
 
       try {
-        const tracksDetailed = await fetchPlaylistTracksDetailed(fromState, spotifyPlaylistId);
-        console.log(`Found ${tracksDetailed.length} tracks in playlist`);
+        const tracks = await fetchPlaylistTracks(fromState, spotifyPlaylistId);
+        console.log(`Found ${tracks.length} tracks in playlist`);
 
         const tidalPlaylistId = await createTidalPlaylist(playlist, toState);
         if (!tidalPlaylistId) {
@@ -113,7 +113,7 @@ function RouteComponent() {
         }
         console.log(`Created Tidal playlist with ID: ${tidalPlaylistId.data.id}`);
 
-        await findTidalTracks(tracksDetailed, tidalTrackIds, toState);
+        await findTidalTracks(tracks, tidalTrackIds, toState);
 
         if (tidalTrackIds.length === 0) {
           console.warn('No tracks found on Tidal for playlist:', playlist.name);
