@@ -1,1 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap');
 @import 'tailwindcss';
+
+@theme {
+  --color-dark-blue: rgb(27, 60, 83);
+  --color-light-blue: rgb(69, 104, 130);
+  --color-dark-brown: rgb(210, 193, 182);
+  --color-light-brown: rgb(210, 193, 182);
+  --font-mono: 'JetBrains Mono';
+}

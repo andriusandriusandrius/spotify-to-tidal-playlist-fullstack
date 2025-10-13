@@ -6,15 +6,9 @@ type LayoutProps = {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="relative z-50 bg-slate-600 p-4 text-white shadow-md"></header>
-      <main className="flex flex-1 bg-black px-4 py-10">
+      <main className="flex flex-1 bg-dark-blue px-4 py-10">
         <div className="mx-auto w-full max-w-screen-xl">{children}</div>
       </main>
-      <footer className="bg-slate-600 p-4 text-center text-white">
-        <div className="mx-auto w-full max-w-screen-xl">
-          <p className="text-sm">{`${new Date().getFullYear()} Transfify.`}</p>
-        </div>
-      </footer>
     </div>
   );
 }
