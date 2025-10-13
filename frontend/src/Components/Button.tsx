@@ -12,14 +12,14 @@ export function Button({ type, label, variant, onClick, disabled }: ButtonProps)
     <button
       type={type}
       className={clsx(
-        'min-w-24 rounded-md p-4 text-sm font-bold',
+        'min-w-24 rounded-md border-4 p-4 text-sm font-bold',
         variant === 'primary'
           ? disabled
-            ? 'bg-slate-200 text-white'
-            : 'bg-slate-400 text-white hover:bg-slate-300'
+            ? 'bg-light-brown text-white'
+            : 'bg-dark-brown text-dark-blue hover:bg-light-blue'
           : disabled
-            ? 'border border-slate-200 text-gray-500'
-            : 'border border-slate-400 text-black',
+            ? 'border border-light-brown text-white'
+            : 'border border-light-brown text-dark-brown hover:border-light-brown hover:bg-light-blue',
         disabled ? 'cursor-not-allowed' : 'cursor-pointer',
       )}
       onClick={onClick}
