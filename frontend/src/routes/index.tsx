@@ -11,7 +11,7 @@ function Index() {
     navigate({ to: '/from' });
   }
   return (
-    <main className="flex h-full flex-col items-center justify-center gap-8 font-mono text-dark-brown">
+    <main className="flex h-full flex-col items-center justify-center gap-8 text-dark-brown">
       <h1 className="mt-16 text-5xl">
         Transferify<p className="text-xl">A playlist transfer tool</p>
       </h1>
