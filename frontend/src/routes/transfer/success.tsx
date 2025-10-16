@@ -47,6 +47,10 @@ async function findTidalTracks(playlistItems: PlaylistTrack[], tidalTrackIds: st
 }
 
 function RouteComponent() {
+  const PAGE_SIZE = 5;
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedPlaylists, setPaginatedPlaylists] = useState<Playlist[] | null>(null);
   const fromState = localStorage.getItem('fromState') ?? '';
   const toStateQuery: RedirParam = useSearch({ from: '/transfer/success' });
   const { data, isLoading, isError } = useGetPlaylists(fromState);
@@ -57,12 +61,25 @@ function RouteComponent() {
   useEffect(() => {
     if (data) {
       const playlists: Playlist[] = data.map((playlist) => ({ ...playlist, picked: false, tracksDetailed: null }));
+      const totalPageNumber = playlists ? Math.ceil(playlists.length / PAGE_SIZE) : 1;
+      setTotalPages(totalPageNumber);
       setPlaylists(playlists);
     } else {
       setPlaylists(null);
     }
   }, [data]);
 
+  useEffect(() => {
+    const pagPlaylists = playlists ? playlists.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE) : [];
+    setPaginatedPlaylists(pagPlaylists);
+  }, [currentPage, playlists]);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
   const handleTogglePicked = (id: string | undefined, checked: boolean) => {
     if (id) {
       setPlaylists((prev) =>
@@ -144,12 +161,23 @@ function RouteComponent() {
         <Button type="button" label="Transfer playlists" variant="primary" onClick={transferSongs} />
         <Button type="button" label="Select All" variant="primary" onClick={handleSelectAll} />
       </div>
-      <div className="flex h-full w-96 flex-col gap-4 rounded-2xl bg-slate-400 p-8">
-        {playlists?.map((playlist) => (
+      <div className="flex h-full w-96 flex-col gap-4 rounded-md bg-dark-brown p-4">
+        {paginatedPlaylists?.map((playlist) => (
           <div key={playlist.id}>
             <PlaylistCard src={playlist} onToggle={handleTogglePicked} />
           </div>
         ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <Button type="button" label="Prev" variant="secondary" onClick={prevPage} disabled={currentPage === 1} />
+        <span className="text-white">{`Page ${currentPage} of ${totalPages}`}</span>
+        <Button
+          type="button"
+          label="Next"
+          variant="secondary"
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+        />
       </div>
     </div>
   );

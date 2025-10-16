@@ -9,10 +9,10 @@ type PlaylistProps = {
 export const PlaylistCard = memo(function PlaylistCard({ src, onToggle }: PlaylistProps) {
   const imageUrl = src?.images?.[0]?.url ?? '/placeholder.png';
   return (
-    <div className="flex items-center rounded-md bg-slate-600 p-2">
+    <div className="flex items-center rounded-md bg-light-blue p-2">
       <input
         type="checkbox"
-        className="mr-3 ml-2 h-10 w-10 accent-blue-500"
+        className="mr-3 ml-2 h-10 w-10"
         checked={!!src?.picked}
         onChange={(e) => onToggle(src?.id, e.target.checked)}
       />
