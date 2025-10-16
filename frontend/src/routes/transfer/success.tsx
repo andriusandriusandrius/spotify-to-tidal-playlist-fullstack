@@ -20,7 +20,7 @@ async function findTidalTracks(playlistItems: PlaylistTrack[], tidalTrackIds: st
   let foundCount = 0;
   let skippedCount = 0;
   for (const element of playlistItems) {
-    const isrc = element.external_ids.isrc.toUpperCase();
+    const isrc = element.external_ids.isrc;
 
     if (!isrc) {
       console.warn('Skipping track without ISRC:', element.name);
@@ -28,7 +28,7 @@ async function findTidalTracks(playlistItems: PlaylistTrack[], tidalTrackIds: st
       continue;
     }
     try {
-      const foundTrackId = await fetchTidalSearchTrack(toState, isrc);
+      const foundTrackId = await fetchTidalSearchTrack(toState, isrc.toUpperCase());
       if (!foundTrackId || !foundTrackId.id) {
         console.warn('Track not on tidal', element.name);
         skippedCount++;

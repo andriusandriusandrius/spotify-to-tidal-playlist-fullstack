@@ -1,5 +1,3 @@
-import type { PlaylistTracksDetailed } from './Tracks';
-
 type PlaylistImage = {
   url: string;
   height: number | null;
@@ -14,6 +12,7 @@ export type PlaylistApi = {
   images: PlaylistImage[];
   name: string;
   public: boolean;
+  description?: string;
   tracks: PlaylistTracks;
 };
 
@@ -24,5 +23,4 @@ export type TidalPlaylistId = {
 };
 export type Playlist = PlaylistApi & {
   picked: boolean;
-  tracksDetailed: PlaylistTracksDetailed | null;
 };
