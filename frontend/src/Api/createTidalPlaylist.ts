@@ -5,7 +5,10 @@ export async function createTidalPlaylist(playlist: Playlist, state: string): Pr
   const response = await apiInstance.post('api/tidal/playlists', null, {
     params: {
       accessType: playlist.public ? 'Public' : 'Private',
-      description: 'template',
+      description:
+        playlist.description && playlist.description.trim().length > 0
+          ? playlist.description
+          : 'imported from spotify via transfify',
       name: playlist.name,
       state: state,
     },
