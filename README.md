@@ -10,3 +10,8 @@ As such from this project I hope to better understand:
 - Tanstack router
 
 The app itself lets the user to login to their spotify and tidal accounts, they then are able to pick and choose their playlists for transfering. The track matching works by comparing ISRC codes.
+
+TODO:
+1. Better error and loading representation in transfer screen.
+2. Add track matching other than ISRC comparison
+3. Add more services
