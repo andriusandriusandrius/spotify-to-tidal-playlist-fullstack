@@ -30,7 +30,6 @@ namespace backend.Api
         [HttpGet("spotify/login")]
         public async Task<IActionResult> SpotifyLogin()
         {
-            HttpContext.Session.Clear();
 
             string generateStateResponse = _authService.GenerateState();
 
