@@ -3,6 +3,7 @@ using backend.DTOs;
 using backend.DTOs.Spotify;
 using backend.Exceptions;
 using backend.Service;
+using backend.Util;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 
@@ -15,19 +16,22 @@ namespace backend.Api
         private readonly ISpotifyService _spotifyService;
         private readonly ILogger<SpotifyController> _logger;
         private readonly IDatabase _redis;
-
-        public SpotifyController(ISpotifyService spotifyService, ILogger<SpotifyController> logger, IConnectionMultiplexer redis)
+        private readonly TokenEncryptor _tokenEncryptor;
+        public SpotifyController(ISpotifyService spotifyService, ILogger<SpotifyController> logger, IConnectionMultiplexer redis, TokenEncryptor tokenEncryptor)
         {
             _spotifyService = spotifyService;
             _logger = logger;
             _redis = redis.GetDatabase();
+            _tokenEncryptor = tokenEncryptor;
         }
         private async Task<ResponseTokenDTO> GetSpotifyTokens(string state)
         {
-            var tokenValue = await _redis.StringGetAsync($"spotify:tokens:{state}");
-            if (!tokenValue.HasValue) throw new DomainException("No tokens found for the provided state");
+            
+            var encryptedTokenValue = await _redis.StringGetAsync($"spotify:tokens:{state}");
+            if (!encryptedTokenValue.HasValue) throw new DomainException("No tokens found for the provided state");
 
-            var tokens = JsonSerializer.Deserialize<ResponseTokenDTO>(tokenValue!)!;
+            var decryptedTokenValue = _tokenEncryptor.Decrypt(encryptedTokenValue);
+            var tokens = JsonSerializer.Deserialize<ResponseTokenDTO>(decryptedTokenValue!)!;
             if (tokens == null || string.IsNullOrEmpty(tokens.AccessToken))
                 throw new DomainException("Unable to parse tokens");
 
