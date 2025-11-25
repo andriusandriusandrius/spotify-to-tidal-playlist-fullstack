@@ -24,9 +24,8 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
     options.Cookie.Name = "Spotify-Tidal.Session";
 });
-
-builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<TokenEncryptor>();
+
 builder.Services.Configure<TidalAuthOptions>(
     builder.Configuration.GetSection("TidalAuthOptions"));
 builder.Services.Configure<SpotifyAuthOptions>(
