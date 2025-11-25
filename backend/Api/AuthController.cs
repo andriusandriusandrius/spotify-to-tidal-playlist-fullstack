@@ -3,6 +3,7 @@ using backend.Configurations;
 using backend.DTOs;
 using backend.Exceptions;
 using backend.Service;
+using backend.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
@@ -20,11 +21,13 @@ namespace backend.Api
         private readonly IAuthService _authService;
         private readonly string _frontendUrl;
         private readonly IDatabase _redis;
-        public AuthController(IAuthService authService, IConnectionMultiplexer redis, IOptions<TidalAuthOptions> config)
+        private readonly TokenEncryptor _tokenEncryptor;
+        public AuthController(IAuthService authService, IConnectionMultiplexer redis, IOptions<TidalAuthOptions> config, TokenEncryptor tokenEncryptor)
         {
             _authService = authService;
             _frontendUrl = config.Value.FrontendRedir ?? throw  new InvalidOperationException("FrontendRedir not defined");
             _redis = redis.GetDatabase();
+            _tokenEncryptor = tokenEncryptor;
         }
         
         [HttpGet("spotify/login")]
@@ -51,7 +54,8 @@ namespace backend.Api
             await _redis.KeyDeleteAsync($"spotify:state:{state}");
             ResponseTokenDTO tokensResponse = await _authService.SpotifyTokenResponse(code);
 
-            await _redis.StringSetAsync($"spotify:tokens:{state}", JsonSerializer.Serialize(tokensResponse), TimeSpan.FromHours(1)); 
+            string encryptedTokens = _tokenEncryptor.Encrypt(JsonSerializer.Serialize(tokensResponse));
+            await _redis.StringSetAsync($"spotify:tokens:{state}",encryptedTokens, TimeSpan.FromHours(1)); 
 
             return Redirect($"{_frontendUrl}to/success?state={state}");
         }
@@ -59,12 +63,12 @@ namespace backend.Api
         public async Task<IActionResult> SpotifyGetTokens([FromQuery] string state)
         {
 
-            var tokens = await _redis.StringGetAsync($"spotify:tokens:{state}");
-            if (!tokens.HasValue) return NotFound("No tokens found");
+            var encryptedTokens = await _redis.StringGetAsync($"spotify:tokens:{state}");
+            if (!encryptedTokens.HasValue) return NotFound("No tokens found");
+            
+            var tokensString = _tokenEncryptor.Decrypt(encryptedTokens); 
 
-             var tokensString = tokens.ToString(); 
-
-             var tokensObj = JsonSerializer.Deserialize<ResponseTokenDTO>(tokensString);
+            var tokensObj = JsonSerializer.Deserialize<ResponseTokenDTO>(tokensString);
 
             return Ok(tokensObj);
         }
@@ -100,18 +104,19 @@ namespace backend.Api
             string verifier = storedObj!.Verifier;
             Console.WriteLine(verifier);
             ResponseTokenDTO tokens = await _authService.TidalTokenResponse(code,verifier);
-            
-            await _redis.StringSetAsync($"tidal:tokens:{state}", JsonSerializer.Serialize(tokens), TimeSpan.FromHours(1));
+
+            string encryptedTokens = _tokenEncryptor.Encrypt(JsonSerializer.Serialize(tokens));
+            await _redis.StringSetAsync($"tidal:tokens:{state}", encryptedTokens, TimeSpan.FromHours(1));
 
             return Redirect($"{_frontendUrl}transfer/success?state={state}");
         }
         [HttpGet("tidal/tokens")]
         public async Task<IActionResult> TidalGetTokens([FromQuery] string state)
         {
-            var tokens = await _redis.StringGetAsync($"tidal:tokens:{state}");
-            if (!tokens.HasValue) return NotFound("No tokens found");
-
-            var tokensString = tokens.ToString(); 
+            var encryptedTokens = await _redis.StringGetAsync($"tidal:tokens:{state}");
+            if (!encryptedTokens.HasValue) return NotFound("No tokens found");
+            
+            var tokensString = _tokenEncryptor.Decrypt(encryptedTokens); 
 
             var tokensObj = JsonSerializer.Deserialize<ResponseTokenDTO>(tokensString);
 

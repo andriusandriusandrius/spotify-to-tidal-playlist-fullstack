@@ -2,6 +2,7 @@ using backend.Service;
 using backend.Exceptions;
 using StackExchange.Redis;
 using backend.Configurations;
+using backend.Util;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -25,7 +26,7 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
-
+builder.Services.AddSingleton<TokenEncryptor>();
 builder.Services.Configure<TidalAuthOptions>(
     builder.Configuration.GetSection("TidalAuthOptions"));
 builder.Services.Configure<SpotifyAuthOptions>(

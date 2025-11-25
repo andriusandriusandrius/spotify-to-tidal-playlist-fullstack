@@ -4,6 +4,7 @@ using backend.DTOs.Spotify;
 using backend.DTOs.Tidal;
 using backend.Exceptions;
 using backend.Service;
+using backend.Util;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 
@@ -16,20 +17,24 @@ namespace backend.Api
         private readonly ITidalService _tidalService;
         private readonly ILogger<TidalController> _logger;
         private readonly IDatabase _redis;
+        private readonly TokenEncryptor _tokenEncryptor;
 
-        public TidalController(ITidalService tidalService, ILogger<TidalController> logger, IConnectionMultiplexer redis)
+        public TidalController(ITidalService tidalService, ILogger<TidalController> logger, IConnectionMultiplexer redis , TokenEncryptor tokenEncryptor)
         {
             _tidalService = tidalService;
             _logger = logger;
             _redis = redis.GetDatabase();
+            _tokenEncryptor = tokenEncryptor;
         }
 
         private async Task<ResponseTokenDTO> GetTidalTokens(string state)
         {
-            var tokenValue = await _redis.StringGetAsync($"tidal:tokens:{state}");
-            if (!tokenValue.HasValue) throw new DomainException("No tokens found for the provided state");
+            var encryptedTokenValue = await _redis.StringGetAsync($"tidal:tokens:{state}");
+            if (!encryptedTokenValue.HasValue) throw new DomainException("No tokens found for the provided state");
 
-            var tokens = JsonSerializer.Deserialize<ResponseTokenDTO>(tokenValue!)!;
+            var decryptedTokenValue = _tokenEncryptor.Decrypt(encryptedTokenValue);
+            var tokens = JsonSerializer.Deserialize<ResponseTokenDTO>(decryptedTokenValue!)!;
+            
             
             if (tokens == null || string.IsNullOrEmpty(tokens.AccessToken))
                 throw new DomainException("Unable to parse tokens");
